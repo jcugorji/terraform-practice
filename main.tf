@@ -2,26 +2,30 @@ provider "aws" {
     region = "us-east-1"
 }
 
-variable "cidr_block" {
-  type        = list(string)
-  description = "vpc cidr block"
-}
-variable "environment"{
-    description = "vpc environment"
-}
 resource "aws_vpc" "practice-vpc"{
     cidr_block = var.cidr_block[0]
     tags = {
-        Name: var.environment
+        Name: "${var.environment}-vpc"
     }
 }
-
-resource "aws_subnet" "pra-subnet"{
+module "my-subnet" {
+    source = "./modules/sub"
+    cidr_block = var.cidr_block
+    environment = var.environment
+    az = var.az
     vpc_id = aws_vpc.practice-vpc.id
-    cidr_block = var.cidr_block[1]
-    availability_zone = "us-east-1c"
+    default_route_table_id = aws_vpc.practice-vpc.default_route_table_id
 }
-output vpc_id {
-  value       = "aws_vpc.practice-vpc.id"
-  description = "vpc id"
+
+module "my-web" {
+    source = "./modules/web"
+    cidr_block = var.cidr_block
+    environment = var.environment
+    az = var.az
+    public_key = var.public_key
+    my_ip = var.my_ip
+    instance = var.instance
+    vpc_id = aws_vpc.practice-vpc.id
+    image_name = var.image_name
+    subnet_id = module.my-subnet.subnet.id
 }
