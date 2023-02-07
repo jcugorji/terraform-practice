@@ -39,7 +39,7 @@ Pipeline {
                 message "select deployment environment"
                 ok "Done"
                 parameters {
-                    choice (name: 'ENV', choices: ['dev', 'prod'], description: 'deployment environment')
+                    choice (name:'ENV',choices:['dev','prod'],description:'deployment environment')
                 }
 
             }
